@@ -63,6 +63,7 @@ class BroetjeModbusCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.binary_sensors: dict[str, Any] = device_config["binary_sensors"]
         self.numbers: dict[str, Any] = device_config.get("numbers", {})
         self.selects: dict[str, Any] = device_config.get("selects", {})
+        self.climates: dict[str, Any] = device_config.get("climates", {})
         self.enum_maps: dict[str, dict[int, str]] = device_config["enum_maps"]
         self.entity_classification: dict[str, tuple[str | None, bool]] = (
             device_config.get("entity_classification", {})
@@ -225,6 +226,28 @@ class BroetjeModbusCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             entry = entity_registry.async_get(entity_id)
             if entry and not entry.disabled:
                 needed_registers.add(entity_config["register"])
+
+        # Check climate entities — each uses multiple registers
+        for entity_key, climate_config in self.climates.items():
+            unique_id = f"{device_id}_{entity_key}"
+            entity_id = entity_registry.async_get_entity_id(
+                Platform.CLIMATE, DOMAIN, unique_id
+            )
+
+            climate_registers = {
+                climate_config["temperature_register"],
+                climate_config["setpoint_register"],
+                climate_config["control_mode_register"],
+                climate_config["heating_mode_register"],
+            }
+
+            if entity_id is None:
+                needed_registers.update(climate_registers)
+                continue
+
+            entry = entity_registry.async_get(entity_id)
+            if entry and not entry.disabled:
+                needed_registers.update(climate_registers)
 
         return needed_registers
 

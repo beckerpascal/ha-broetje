@@ -1466,7 +1466,19 @@
         "name": "Zone {zone} flow measurement"
       }
     },
+    "climate": {
+      "zone_climate": {
+        "name": "Zone {zone} thermostat",
+        "state": {
+          "off": "Off",
+          "heat": "Heat"
+        }
+      }
+    },
     "number": {
+      "zone_room_temp_measured": {
+        "name": "Zone {zone} room temperature (measured)"
+      },
       "zone_room_setpoint_manual": {
         "name": "Zone {zone} room setpoint"
       }
