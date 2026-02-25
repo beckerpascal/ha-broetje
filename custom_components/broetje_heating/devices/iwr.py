@@ -165,13 +165,14 @@ IWR_ZONE_ENTITY_CLASSIFICATION: Final[dict[str, tuple[str | None, bool]]] = {
     "zone_heating_curve_gradient": ("diagnostic", True),
     "zone_heating_curve_footpoint": ("diagnostic", True),
     "zone_max_flow_setpoint": ("diagnostic", True),
-    "zone_room_setpoint_manual": ("diagnostic", True),
     "zone_fixed_flow_setpoint": ("diagnostic", True),
+    # ===== Zone writable entities — Primary, enabled =====
+    "zone_room_setpoint_manual": (None, True),
+    "zone_control_mode": (None, True),
     # ===== Zone commissioning metadata — Diagnostic, disabled by default =====
     "zone_function": ("diagnostic", False),
     "zone_device_type": ("diagnostic", False),
     "zone_type": ("diagnostic", False),
-    "zone_control_mode": ("diagnostic", False),
     "zone_heating_control_strategy": ("diagnostic", False),
     # ===== Zone deep tuning — Diagnostic, disabled by default =====
     "zone_comfort_setpoint_1": ("diagnostic", False),
@@ -2288,13 +2289,16 @@ def _build_zone_registers(zones: list[int]) -> dict[str, Any]:
             "data_type": "uint16",
             "scale": 1,
         }
-        # CP32X - Zone control mode (ENUM8, Tab.36/42)
+        # CP32X - Zone control mode (ENUM8, Tab.36/42, R/W)
         registers[f"{prefix}_control_mode"] = {
             "address": ZONE_ADDRESSES["CP32X"][z],
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "uint16",
             "scale": 1,
+            "writable": True,
+            "min": 0,
+            "max": 2,
         }
         # CP01X - Zone fixed flow setpoint (UINT16, 0.01°C, Tab.37)
         registers[f"{prefix}_fixed_flow_setpoint"] = {
@@ -2304,13 +2308,17 @@ def _build_zone_registers(zones: list[int]) -> dict[str, Any]:
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
         }
-        # CP20X - Zone room temp setpoint manual (UINT16, 0.1°C, Tab.43)
+        # CP20X - Zone room temp setpoint manual (UINT16, 0.1°C, Tab.43, R/W)
         registers[f"{prefix}_room_setpoint_manual"] = {
             "address": ZONE_ADDRESSES["CP20X"][z],
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "uint16",
             "scale": IWR_SCALE_ROOM_TEMP,
+            "writable": True,
+            "min": 5.0,
+            "max": 30.0,
+            "step": 0.5,
         }
         # CP23X - Heating curve gradient (UINT8, resolution 0.1, Tab.39)
         registers[f"{prefix}_heating_curve_gradient"] = {
@@ -2541,13 +2549,17 @@ def _build_zone_registers(zones: list[int]) -> dict[str, Any]:
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
         }
-        # 686 - DHW calorifier hysteresis (UINT16, 0.01°C)
+        # 686 - DHW calorifier hysteresis (UINT16, 0.01°C, R/W)
         registers[f"{prefix}_dhw_calorifier_hysteresis"] = {
             "address": _zone_addr(686, z),
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
+            "writable": True,
+            "min": 0.5,
+            "max": 20.0,
+            "step": 0.1,
         }
         # 687 - Pump post-run delay (UINT8, minutes)
         registers[f"{prefix}_pump_post_run"] = {
@@ -2584,13 +2596,18 @@ def _build_zone_registers(zones: list[int]) -> dict[str, Any]:
             "data_type": "int16",
             "scale": IWR_SCALE_ROOM_TEMP,
         }
-        # 1105 - Zone room temperature measured (INT16, 0.01°C)
+        # 1105 - Zone room temperature measured (INT16, 0.01°C, R/W)
+        # Writing allows injecting an external room sensor value into the controller.
         registers[f"{prefix}_room_temp_measured"] = {
             "address": _zone_addr(1105, z),
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "int16",
             "scale": IWR_SCALE_TEMP,
+            "writable": True,
+            "min": -30.0,
+            "max": 50.0,
+            "step": 0.1,
         }
         # 1106 - Zone heat demand on/off (ENUM8, 0=off/1=on)
         registers[f"{prefix}_heat_demand"] = {
@@ -3242,12 +3259,100 @@ def _build_board_sensors() -> dict[str, Any]:
     return sensors
 
 
+# ===== Writable Entity Builders =====
+
+
+def _build_zone_numbers(zones: list[int]) -> dict[str, Any]:
+    """Generate number entity definitions for writable numeric zone registers."""
+    numbers: dict[str, Any] = {}
+    for zn in zones:
+        prefix = f"zone{zn}"
+
+        # 686 - DHW calorifier hysteresis (R/W)
+        numbers[f"{prefix}_dhw_calorifier_hysteresis"] = {
+            "register": f"{prefix}_dhw_calorifier_hysteresis",
+            "translation_key": "zone_dhw_calorifier_hysteresis",
+            "device_class": "temperature",
+            "unit": "°C",
+            "mode": "box",
+            "zone_number": zn,
+        }
+
+        # 1105 - Zone room temperature measured (R/W, external sensor override)
+        numbers[f"{prefix}_room_temp_measured"] = {
+            "register": f"{prefix}_room_temp_measured",
+            "translation_key": "zone_room_temp_measured",
+            "device_class": "temperature",
+            "unit": "°C",
+            "mode": "box",
+            "zone_number": zn,
+        }
+
+        # CP20X - Zone room temp setpoint manual (R/W)
+        numbers[f"{prefix}_room_setpoint_manual"] = {
+            "register": f"{prefix}_room_setpoint_manual",
+            "translation_key": "zone_room_setpoint_manual",
+            "device_class": "temperature",
+            "unit": "°C",
+            "mode": "slider",
+            "zone_number": zn,
+        }
+
+    return numbers
+
+
+def _build_zone_selects(zones: list[int]) -> dict[str, Any]:
+    """Generate select entity definitions for writable enum zone registers."""
+    selects: dict[str, Any] = {}
+    for zn in zones:
+        prefix = f"zone{zn}"
+
+        # CP32X - Zone control mode (R/W)
+        selects[f"{prefix}_control_mode"] = {
+            "register": f"{prefix}_control_mode",
+            "translation_key": "zone_control_mode",
+            "enum_map": "iwr_zone_control_mode",
+            "icon": "mdi:cog",
+            "zone_number": zn,
+        }
+
+    return selects
+
+
+def _build_zone_climates(zones: list[int]) -> dict[str, Any]:
+    """Generate climate entity definitions for zone thermostat control."""
+    climates: dict[str, Any] = {}
+    for zn in zones:
+        prefix = f"zone{zn}"
+        climates[f"{prefix}_climate"] = {
+            "temperature_register": f"{prefix}_room_temp_measured",
+            "setpoint_register": f"{prefix}_room_setpoint_manual",
+            "control_mode_register": f"{prefix}_control_mode",
+            "heating_mode_register": f"{prefix}_heating_mode",
+            "zone_number": zn,
+            "translation_key": "zone_climate",
+        }
+    return climates
+
+
+# Registers that have been promoted to number/select entities and should
+# no longer appear as read-only sensors.
+_WRITABLE_ZONE_SENSOR_KEYS: Final[set[str]] = {
+    "control_mode",
+    "dhw_calorifier_hysteresis",
+    "room_setpoint_manual",
+    "room_temp_measured",
+}
+
+
 # ===== Public API =====
 
 
 def _build_entity_classification(
     sensors: dict[str, Any],
     binary_sensors: dict[str, Any],
+    numbers: dict[str, Any],
+    selects: dict[str, Any],
 ) -> dict[str, tuple[str | None, bool]]:
     """Build a merged classification map for all IWR entities.
 
@@ -3257,7 +3362,8 @@ def _build_entity_classification(
     """
     classification: dict[str, tuple[str | None, bool]] = {}
 
-    for entity_key, config in {**sensors, **binary_sensors}.items():
+    all_entities = {**sensors, **binary_sensors, **numbers, **selects}
+    for entity_key, config in all_entities.items():
         translation_key = config.get("translation_key", entity_key)
 
         if entity_key in IWR_STATIC_ENTITY_CLASSIFICATION:
@@ -3290,11 +3396,25 @@ def get_iwr_device_config(zones: list[int] | None = None) -> dict[str, Any]:
         **_IWR_STATIC_BINARY_SENSORS,
         **_build_zone_binary_sensors(zones),
     }
+    numbers = _build_zone_numbers(zones)
+    selects = _build_zone_selects(zones)
+    climates = _build_zone_climates(zones)
+
+    # Remove sensor entries for registers that now have number/select entities
+    for key in list(sensors):
+        suffix = key.split("_", 1)[1] if "_" in key else key
+        if suffix in _WRITABLE_ZONE_SENSOR_KEYS:
+            del sensors[key]
 
     return {
         "register_map": register_map,
         "sensors": sensors,
         "binary_sensors": binary_sensors,
+        "numbers": numbers,
+        "selects": selects,
+        "climates": climates,
         "enum_maps": IWR_ENUM_MAPS,
-        "entity_classification": _build_entity_classification(sensors, binary_sensors),
+        "entity_classification": _build_entity_classification(
+            sensors, binary_sensors, numbers, selects
+        ),
     }

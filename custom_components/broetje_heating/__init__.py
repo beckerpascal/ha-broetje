@@ -19,8 +19,11 @@ from .devices import CONF_DEVICE_TYPE, DeviceType
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [
+    Platform.CLIMATE,
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
+    Platform.NUMBER,
+    Platform.SELECT,
 ]
 
 type BroetjeConfigEntry = ConfigEntry[BroetjeModbusCoordinator]

@@ -13,6 +13,7 @@ from pymodbus.exceptions import ModbusException
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -64,6 +65,9 @@ class BroetjeModbusCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.register_map: dict[str, Any] = device_config["register_map"]
         self.sensors: dict[str, Any] = device_config["sensors"]
         self.binary_sensors: dict[str, Any] = device_config["binary_sensors"]
+        self.numbers: dict[str, Any] = device_config.get("numbers", {})
+        self.selects: dict[str, Any] = device_config.get("selects", {})
+        self.climates: dict[str, Any] = device_config.get("climates", {})
         self.enum_maps: dict[str, dict[int, str]] = device_config["enum_maps"]
         self.entity_classification: dict[str, tuple[str | None, bool]] = (
             device_config.get("entity_classification", {})
@@ -240,6 +244,58 @@ class BroetjeModbusCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # If entity exists and is NOT disabled, we need this register
             if entry and not entry.disabled:
                 needed_registers.add(sensor_config["register"])
+
+        # Check number entities
+        for entity_key, entity_config in self.numbers.items():
+            unique_id = f"{device_id}_{entity_key}"
+            entity_id = entity_registry.async_get_entity_id(
+                Platform.NUMBER, DOMAIN, unique_id
+            )
+
+            if entity_id is None:
+                needed_registers.add(entity_config["register"])
+                continue
+
+            entry = entity_registry.async_get(entity_id)
+            if entry and not entry.disabled:
+                needed_registers.add(entity_config["register"])
+
+        # Check select entities
+        for entity_key, entity_config in self.selects.items():
+            unique_id = f"{device_id}_{entity_key}"
+            entity_id = entity_registry.async_get_entity_id(
+                Platform.SELECT, DOMAIN, unique_id
+            )
+
+            if entity_id is None:
+                needed_registers.add(entity_config["register"])
+                continue
+
+            entry = entity_registry.async_get(entity_id)
+            if entry and not entry.disabled:
+                needed_registers.add(entity_config["register"])
+
+        # Check climate entities — each uses multiple registers
+        for entity_key, climate_config in self.climates.items():
+            unique_id = f"{device_id}_{entity_key}"
+            entity_id = entity_registry.async_get_entity_id(
+                Platform.CLIMATE, DOMAIN, unique_id
+            )
+
+            climate_registers = {
+                climate_config["temperature_register"],
+                climate_config["setpoint_register"],
+                climate_config["control_mode_register"],
+                climate_config["heating_mode_register"],
+            }
+
+            if entity_id is None:
+                needed_registers.update(climate_registers)
+                continue
+
+            entry = entity_registry.async_get(entity_id)
+            if entry and not entry.disabled:
+                needed_registers.update(climate_registers)
 
         return needed_registers
 
@@ -458,6 +514,114 @@ class BroetjeModbusCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return "".join(chars).rstrip("\x00").strip()
 
         return registers[0] * scale
+
+    @staticmethod
+    def _encode_register_value(value: int, data_type: str) -> list[int]:
+        """Encode a raw integer value into Modbus register word(s)."""
+        if data_type in ("uint8", "uint16"):
+            return [value & 0xFFFF]
+
+        if data_type == "int16":
+            if value < 0:
+                value += 65536
+            return [value & 0xFFFF]
+
+        if data_type == "uint32":
+            return [(value >> 16) & 0xFFFF, value & 0xFFFF]
+
+        if data_type == "int32":
+            if value < 0:
+                value += 4294967296
+            return [(value >> 16) & 0xFFFF, value & 0xFFFF]
+
+        return [value & 0xFFFF]
+
+    async def async_write_register(self, register_key: str, value: float | int) -> None:
+        """Write a value to a writable register.
+
+        Validates the writable flag and bounds, applies reverse scaling,
+        encodes to register words, writes via Modbus, and verifies with
+        a read-back.
+        """
+        if register_key not in self.register_map:
+            raise HomeAssistantError(f"Unknown register: {register_key}")
+
+        config = self.register_map[register_key]
+
+        if not config.get("writable"):
+            raise HomeAssistantError(f"Register {register_key} is not writable")
+
+        if config["type"] != REG_HOLDING:
+            raise HomeAssistantError(
+                f"Register {register_key} is not a holding register"
+            )
+
+        # Bounds validation (min/max are in user-facing scaled units)
+        min_val = config.get("min")
+        max_val = config.get("max")
+        if min_val is not None and value < min_val:
+            raise HomeAssistantError(
+                f"Value {value} below minimum {min_val} for {register_key}"
+            )
+        if max_val is not None and value > max_val:
+            raise HomeAssistantError(
+                f"Value {value} above maximum {max_val} for {register_key}"
+            )
+
+        # Reverse scaling: convert user-facing value to raw register value
+        scale = config.get("scale", 1.0)
+        raw_value = int(round(value / scale)) if scale != 1 else int(value)
+
+        # Encode to register word(s)
+        data_type = config.get("data_type", "uint16")
+        register_words = self._encode_register_value(raw_value, data_type)
+        address = config["address"]
+
+        _LOGGER.debug(
+            "Writing register %s (addr=%d): value=%s, raw=%d, words=%s",
+            register_key,
+            address,
+            value,
+            raw_value,
+            register_words,
+        )
+
+        async with self._lock:
+            try:
+                await self._connect()
+
+                result = await self._client.write_registers(
+                    address=address,
+                    values=register_words,
+                    device_id=self._unit_id,
+                )
+
+                if result.isError():
+                    raise HomeAssistantError(
+                        f"Modbus write error for {register_key}: {result}"
+                    )
+
+            except ModbusException as err:
+                await self._disconnect()
+                raise HomeAssistantError(
+                    f"Modbus exception writing {register_key}: {err}"
+                ) from err
+
+        # Read-back verification
+        readback = await self._read_registers(
+            address, config.get("count", 1), REG_HOLDING
+        )
+        if readback is not None:
+            readback_words = readback[: len(register_words)]
+            if readback_words != register_words:
+                _LOGGER.warning(
+                    "Read-back mismatch for %s: wrote %s, read %s",
+                    register_key,
+                    register_words,
+                    readback_words,
+                )
+
+        await self.async_request_refresh()
 
     async def async_shutdown(self) -> None:
         """Shutdown the coordinator."""

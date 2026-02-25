@@ -1737,6 +1737,36 @@
       "zone_electrical_backup_output": {
         "name": "Heizkreis {zone} Elektro-Backup Ausgang"
       }
+    },
+    "climate": {
+      "zone_climate": {
+        "name": "Heizkreis {zone} Thermostat",
+        "state": {
+          "off": "Aus",
+          "heat": "Heizen"
+        }
+      }
+    },
+    "number": {
+      "zone_dhw_calorifier_hysteresis": {
+        "name": "Heizkreis {zone} Warmwasserspeicher-Hysterese"
+      },
+      "zone_room_temp_measured": {
+        "name": "Heizkreis {zone} Raumtemperatur (gemessen)"
+      },
+      "zone_room_setpoint_manual": {
+        "name": "Heizkreis {zone} Raumsollwert"
+      }
+    },
+    "select": {
+      "zone_control_mode": {
+        "name": "Heizkreis {zone} Steuerungsmodus",
+        "state": {
+          "scheduling": "Zeitprogramm",
+          "manual": "Manuell",
+          "off": "Aus"
+        }
+      }
     }
   }
 }
