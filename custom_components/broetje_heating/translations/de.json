@@ -1748,6 +1748,9 @@
       }
     },
     "number": {
+      "zone_dhw_calorifier_hysteresis": {
+        "name": "Heizkreis {zone} Warmwasserspeicher-Hysterese"
+      },
       "zone_room_temp_measured": {
         "name": "Heizkreis {zone} Raumtemperatur (gemessen)"
       },

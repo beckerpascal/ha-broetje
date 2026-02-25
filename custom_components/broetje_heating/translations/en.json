@@ -1748,6 +1748,9 @@
       }
     },
     "number": {
+      "zone_dhw_calorifier_hysteresis": {
+        "name": "Zone {zone} DHW calorifier hysteresis"
+      },
       "zone_room_temp_measured": {
         "name": "Zone {zone} room temperature (measured)"
       },

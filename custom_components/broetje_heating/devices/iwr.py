@@ -2450,13 +2450,17 @@ def _build_zone_registers(zones: list[int]) -> dict[str, Any]:
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
         }
-        # 686 - DHW calorifier hysteresis (UINT16, 0.01°C)
+        # 686 - DHW calorifier hysteresis (UINT16, 0.01°C, R/W)
         registers[f"{prefix}_dhw_calorifier_hysteresis"] = {
             "address": _zone_addr(686, z),
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
+            "writable": True,
+            "min": 0.5,
+            "max": 20.0,
+            "step": 0.1,
         }
         # 687 - Pump post-run delay (UINT8, minutes)
         registers[f"{prefix}_pump_post_run"] = {
@@ -3165,6 +3169,16 @@ def _build_zone_numbers(zones: list[int]) -> dict[str, Any]:
     for zn in zones:
         prefix = f"zone{zn}"
 
+        # 686 - DHW calorifier hysteresis (R/W)
+        numbers[f"{prefix}_dhw_calorifier_hysteresis"] = {
+            "register": f"{prefix}_dhw_calorifier_hysteresis",
+            "translation_key": "zone_dhw_calorifier_hysteresis",
+            "device_class": "temperature",
+            "unit": "°C",
+            "mode": "box",
+            "zone_number": zn,
+        }
+
         # 1105 - Zone room temperature measured (R/W, external sensor override)
         numbers[f"{prefix}_room_temp_measured"] = {
             "register": f"{prefix}_room_temp_measured",
@@ -3226,6 +3240,7 @@ def _build_zone_climates(zones: list[int]) -> dict[str, Any]:
 # no longer appear as read-only sensors.
 _WRITABLE_ZONE_SENSOR_KEYS: Final[set[str]] = {
     "control_mode",
+    "dhw_calorifier_hysteresis",
     "room_setpoint_manual",
     "room_temp_measured",
 }
