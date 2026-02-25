@@ -205,7 +205,7 @@ IWR_ZONE_ENTITY_CLASSIFICATION: Final[dict[str, tuple[str | None, bool]]] = {
     "zone_process_heat_hysteresis": ("diagnostic", False),
     "zone_process_heat_offset": ("diagnostic", False),
     "zone_process_heat_calorifier_raise": ("diagnostic", False),
-    "zone_dhw_calorifier_hysteresis": ("diagnostic", False),
+    "zone_dhw_calorifier_hysteresis": ("diagnostic", True),
     "zone_pump_post_run": ("diagnostic", False),
     # ===== Zone low-level flags — Diagnostic, disabled by default =====
     "zone_flow_measurement": ("diagnostic", False),
