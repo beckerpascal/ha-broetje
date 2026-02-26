@@ -58,10 +58,13 @@ Registerspezifikation: [de-de_ma_modbm.pdf](https://polo.broetje.de/pdf/7715040=
 
 - **Zwei Modultypen**: IWR/GTW-08 und ISR Plus, bei der Einrichtung auswählbar
 - **Parallelbetrieb**: Beide Module können gleichzeitig für verschiedene Geräte laufen
-- **Nur-Lesen Überwachung**
+- **Lese- und Schreibunterstützung (ausgewählte Register)**: Schwerpunkt bleibt Monitoring; für ausgewählte IWR Holding-Register ist sicheres Schreiben über `number`/`select`/`climate` Entitäten möglich
 - **IWR**: ~213 Entitäten (1 Zone) bis ~884 Entitäten (12 Zonen) — Hauptgerät, Zonenparameter & -messwerte, Geräteinformationen, Wartung, Fehlerdiagnose
 - **ISR**: 117 Entitäten (100 Sensoren + 17 Binärsensoren) in 6 Kategorien
 - **Zonenerkennung** (IWR): Erkennt aktive Zonen automatisch durch Auslesen der Zonentyp- und Zonenfunktionsregister vom Gerät; aktive Zonen werden vorausgewählt, inaktive angezeigt aber nicht ausgewählt. Manuelle Auswahl ebenfalls möglich.
+- **Climate-Subsystem** (IWR): Pro Zone werden Home-Assistant-`climate` Entitäten bereitgestellt (Thermostat-Karte kompatibel) mit Isttemperatur, Solltemperatur und HVAC-Modus/Aktion.
+- **Schreibbare Zonensteuerung** (IWR): Schreibfähige Entitäten für ausgewählte Zonenregister, u. a. Steuerungsmodus, Raumsollwert (manuell), gemessene Raumtemperatur (externer Fühlerwert) und TWW-Speicher-Hysterese.
+- **Sub-Devices**: Entitäten werden unter funktionalen Untergeräten gruppiert (z. B. Kessel/Service/Solar/Pufferspeicher/Hybrid). Nur erkannte Untergeräte werden geführt; verwaiste Untergeräte werden beim Reload automatisch entfernt.
 - **Konfigurierbare Zonen** (IWR): 1–12 Zonen bei der Einrichtung auswählbar oder über Integrationsoptionen neu konfigurierbar
 - **Konfigurierbares Abfrageintervall**: Über Integrationsoptionen einstellbar (Standard: 120 Sekunden)
 - **Deutsche und englische Übersetzungen**
@@ -151,7 +154,7 @@ Nach der Einrichtung kann über das **Konfigurieren**-Symbol (Zahnrad) am Integr
 
 Siehe [ENTITIES.md](ENTITIES.md) für eine vollständige Liste der ISR Entitäten mit Modbus-Registeradressen und Beschreibungen.
 
-Für IWR-Entitäten siehe [`register_map.csv`](register_map.csv) für eine umfassende Registertabelle mit Adressen, Datentypen, Beschreibungen (DE/EN), Einheiten, Skalierungsfaktoren und Kategorien.
+Für IWR-Entitäten siehe [`custom_components/broetje_heating/register_map.csv`](custom_components/broetje_heating/register_map.csv) für eine umfassende Registertabelle mit Adressen, Datentypen, Beschreibungen (DE/EN), Einheiten, Skalierungsfaktoren sowie Lese-/Schreibstatus (`rw_spec` und `rw_implemented`).
 
 ### Highlights
 
@@ -196,7 +199,7 @@ Beiträge sind willkommen! Bitte:
 
 ## Roadmap
 
-- [ ] Schreibunterstützung für R/W Register
+- [~] Schreibunterstützung für ausgewählte R/W Register (laufende Erweiterung)
 - [ ] Zusätzliche Heizkreise für ISR (HK2, HK3)
 - [X] Brötje Logo im offiziellen HA brand repo
 

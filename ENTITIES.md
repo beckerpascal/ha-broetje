@@ -2,6 +2,15 @@
 
 This document lists all entities provided by the Brötje Heatpump integration.
 
+## IWR / GTW-08 Summary (Current State)
+
+- IWR now includes a **climate subsystem** with per-zone thermostat entities (Home Assistant `climate`), including current temperature, target setpoint, and HVAC mode/action mapping.
+- IWR supports **write access for selected holding registers** via `number` and `select` entities.
+- IWR entities are grouped into **zone devices** and **functional sub-devices** (for example boiler/service/solar/buffer/hybrid). Sub-devices are auto-detected; non-existing/orphaned entries are removed on reload.
+
+For the complete IWR register inventory and read/write status, see:
+`custom_components/broetje_heating/register_map.csv`
+
 ## Heating Circuit 1 (Heizkreis 1)
 
 ### Sensors
@@ -244,11 +253,11 @@ Example: `sensor.broetje_heatpump_hc1_flow_temperature`
 
 ## IWR Entity Reference
 
-For IWR/GTW-08 entities, see [`register_map.csv`](register_map.csv) for a comprehensive register map including all 885 registers with addresses, data types, descriptions (EN/DE), units, scaling factors, and categories.
+For IWR/GTW-08 entities, see [`custom_components/broetje_heating/register_map.csv`](custom_components/broetje_heating/register_map.csv) for a comprehensive register map including all registers with addresses, data types, descriptions (EN/DE), units, scaling factors, categories, and read/write status.
 
 ## Future Entities
 
 The following entities are planned for future versions:
 
 - Additional heating circuits for ISR (HC2, HC3)
-- Write support for R/W registers
+- Further expansion of write support coverage

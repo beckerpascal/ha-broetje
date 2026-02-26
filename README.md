@@ -58,10 +58,13 @@ Register specification: [de-de_ma_modbm.pdf](https://polo.broetje.de/pdf/7715040
 
 - **Two module types**: IWR/GTW-08 and ISR Plus, selectable during setup
 - **Parallel operation**: Both modules can run side by side for different appliances
-- **Read-only monitoring**
+- **Read + write support (selected registers)**: Monitoring remains read-focused, with safe write support for selected IWR holding registers exposed as `number`/`select`/`climate` entities
 - **IWR**: ~213 entities (1 zone) up to ~884 entities (12 zones) — main appliance, zone parameters & measurements, device info, service, error diagnostics
 - **ISR**: 117 entities (100 sensors + 17 binary sensors) across 6 categories
 - **Zone detection** (IWR): Automatically detects active zones by reading zone type and function registers from the device; active zones are pre-selected, inactive ones shown but unchecked. Manual selection also available.
+- **Climate subsystem** (IWR): Zone thermostat entities are exposed via Home Assistant `climate` entities (Thermostat card compatible) with current temperature, target setpoint, and HVAC mode/action mapping.
+- **Writable zone controls** (IWR): Write-enabled entities for selected zone registers, including control mode, room setpoint (manual), room temperature measured (external sensor injection), and DHW calorifier hysteresis.
+- **Sub-devices**: Entities are grouped under functional sub-devices (for example boiler/service/solar/buffer/hybrid). Only detected sub-devices are kept; stale/orphaned sub-devices are removed automatically on reload.
 - **Configurable zones** (IWR): 1–12 zones selectable during setup or reconfigurable via integration options
 - **Configurable scan interval**: Adjustable polling interval via integration options (default: 120 seconds)
 - **German and English translations**
@@ -151,7 +154,7 @@ After setup, click the **Configure** (gear icon) button on the integration entry
 
 See [ENTITIES.md](ENTITIES.md) for a complete list of ISR entities with their Modbus register addresses and descriptions.
 
-For IWR entities, see [`register_map.csv`](register_map.csv) for a comprehensive register map including addresses, data types, descriptions (EN/DE), units, scaling factors, and categories.
+For IWR entities, see [`custom_components/broetje_heating/register_map.csv`](custom_components/broetje_heating/register_map.csv) for a comprehensive register map including addresses, data types, descriptions (EN/DE), units, scaling factors, and read/write status (`rw_spec` and `rw_implemented`).
 
 ### Highlights
 
@@ -223,7 +226,7 @@ Contributions are welcome! Please:
 
 ## Roadmap
 
-- [ ] Write support for R/W registers
+- [~] Write support for selected R/W registers (ongoing expansion)
 - [ ] Additional heating circuits for ISR (HC2, HC3)
 - [X] Brötje logo in official HA brand repo
 
