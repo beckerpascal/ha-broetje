@@ -1579,6 +1579,12 @@
           "cooling": "Kühlen"
         }
       },
+      "zone_dhw_tank_temp_bottom": {
+        "name": "Heizkreis {zone} Speichertemperatur (unten)"
+      },
+      "zone_dhw_tank_temp_top": {
+        "name": "Heizkreis {zone} Speichertemperatur (oben)"
+      },
       "board_device_type": {
         "name": "Platine {board} Gerätetyp"
       },

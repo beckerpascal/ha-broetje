@@ -2645,6 +2645,22 @@ def _build_zone_registers(zones: list[int]) -> dict[str, Any]:
             "count": 1,
             "data_type": "bool",
         }
+        # 1119 - DHW tank temperature bottom sensor (INT16, 0.01°C)
+        registers[f"{prefix}_dhw_tank_temp_bottom"] = {
+            "address": _zone_addr(1119, z),
+            "type": REG_HOLDING,
+            "count": 1,
+            "data_type": "int16",
+            "scale": IWR_SCALE_TEMP,
+        }
+        # 1120 - DHW tank temperature top sensor (INT16, 0.01°C)
+        registers[f"{prefix}_dhw_tank_temp_top"] = {
+            "address": _zone_addr(1120, z),
+            "type": REG_HOLDING,
+            "count": 1,
+            "data_type": "int16",
+            "scale": IWR_SCALE_TEMP,
+        }
 
     return registers
 
@@ -3088,6 +3104,24 @@ def _build_zone_sensors(zones: list[int]) -> dict[str, Any]:
             "state_class": None,
             "icon": "mdi:thermostat",
             "enum_map": "iwr_zone_heating_mode",
+            "zone_number": zn,
+        }
+        sensors[f"{prefix}_dhw_tank_temp_bottom"] = {
+            "register": f"{prefix}_dhw_tank_temp_bottom",
+            "translation_key": "zone_dhw_tank_temp_bottom",
+            "device_class": "temperature",
+            "unit": "°C",
+            "state_class": "measurement",
+            "icon": "mdi:water-thermometer",
+            "zone_number": zn,
+        }
+        sensors[f"{prefix}_dhw_tank_temp_top"] = {
+            "register": f"{prefix}_dhw_tank_temp_top",
+            "translation_key": "zone_dhw_tank_temp_top",
+            "device_class": "temperature",
+            "unit": "°C",
+            "state_class": "measurement",
+            "icon": "mdi:water-thermometer",
             "zone_number": zn,
         }
 

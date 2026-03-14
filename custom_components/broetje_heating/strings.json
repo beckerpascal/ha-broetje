@@ -1333,6 +1333,12 @@
       },
       "zone_heating_curve_footpoint": {
         "name": "Zone {zone} heating curve footpoint"
+      },
+      "zone_dhw_tank_temp_bottom": {
+        "name": "Zone {zone} DHW tank temperature (bottom)"
+      },
+      "zone_dhw_tank_temp_top": {
+        "name": "Zone {zone} DHW tank temperature (top)"
       }
     },
     "binary_sensor": {
