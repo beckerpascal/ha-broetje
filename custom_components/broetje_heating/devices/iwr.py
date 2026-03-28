@@ -188,9 +188,9 @@ IWR_ZONE_ENTITY_CLASSIFICATION: Final[dict[str, tuple[str | None, bool]]] = {
     "zone_cooling_night_setback": ("diagnostic", False),
     "zone_holiday_setpoint": ("diagnostic", False),
     "zone_temporary_setpoint": ("diagnostic", False),
-    "zone_dhw_comfort_setpoint": ("diagnostic", False),
-    "zone_dhw_reduced_setpoint": ("diagnostic", False),
-    "zone_dhw_holiday_setpoint": ("diagnostic", False),
+    "zone_dhw_comfort_setpoint": (None, True),
+    "zone_dhw_reduced_setpoint": (None, True),
+    "zone_dhw_holiday_setpoint": (None, True),
     "zone_dhw_antilegionella_setpoint": ("diagnostic", False),
     "zone_swimming_pool_setpoint": ("diagnostic", False),
     "zone_process_heat_setpoint": ("diagnostic", False),
@@ -2397,29 +2397,41 @@ def _build_zone_registers(zones: list[int]) -> dict[str, Any]:
             "data_type": "uint16",
             "scale": IWR_SCALE_ROOM_TEMP,
         }
-        # 665 - DHW comfort setpoint (UINT16, 0.01°C)
+        # 665 - DHW comfort setpoint (UINT16, 0.01°C, R/W)
         registers[f"{prefix}_dhw_comfort_setpoint"] = {
             "address": _zone_addr(665, z),
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
+            "writable": True,
+            "min": 10.0,
+            "max": 80.0,
+            "step": 0.5,
         }
-        # 666 - DHW reduced setpoint (UINT16, 0.01°C)
+        # 666 - DHW reduced setpoint (UINT16, 0.01°C, R/W)
         registers[f"{prefix}_dhw_reduced_setpoint"] = {
             "address": _zone_addr(666, z),
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
+            "writable": True,
+            "min": 10.0,
+            "max": 80.0,
+            "step": 0.5,
         }
-        # 667 - DHW holiday setpoint (UINT16, 0.01°C)
+        # 667 - DHW holiday setpoint (UINT16, 0.01°C, R/W)
         registers[f"{prefix}_dhw_holiday_setpoint"] = {
             "address": _zone_addr(667, z),
             "type": REG_HOLDING,
             "count": 1,
             "data_type": "uint16",
             "scale": IWR_SCALE_TEMP,
+            "writable": True,
+            "min": 10.0,
+            "max": 80.0,
+            "step": 0.5,
         }
         # 668 - DHW anti-legionella setpoint (UINT16, 0.01°C)
         registers[f"{prefix}_dhw_antilegionella_setpoint"] = {
@@ -3302,6 +3314,36 @@ def _build_zone_numbers(zones: list[int]) -> dict[str, Any]:
     for zn in zones:
         prefix = f"zone{zn}"
 
+        # 665 - DHW comfort setpoint (R/W)
+        numbers[f"{prefix}_dhw_comfort_setpoint"] = {
+            "register": f"{prefix}_dhw_comfort_setpoint",
+            "translation_key": "zone_dhw_comfort_setpoint",
+            "device_class": "temperature",
+            "unit": "°C",
+            "mode": "box",
+            "zone_number": zn,
+        }
+
+        # 666 - DHW reduced setpoint (R/W)
+        numbers[f"{prefix}_dhw_reduced_setpoint"] = {
+            "register": f"{prefix}_dhw_reduced_setpoint",
+            "translation_key": "zone_dhw_reduced_setpoint",
+            "device_class": "temperature",
+            "unit": "°C",
+            "mode": "box",
+            "zone_number": zn,
+        }
+
+        # 667 - DHW holiday setpoint (R/W)
+        numbers[f"{prefix}_dhw_holiday_setpoint"] = {
+            "register": f"{prefix}_dhw_holiday_setpoint",
+            "translation_key": "zone_dhw_holiday_setpoint",
+            "device_class": "temperature",
+            "unit": "°C",
+            "mode": "box",
+            "zone_number": zn,
+        }
+
         # 686 - DHW calorifier hysteresis (R/W)
         numbers[f"{prefix}_dhw_calorifier_hysteresis"] = {
             "register": f"{prefix}_dhw_calorifier_hysteresis",
@@ -3373,6 +3415,9 @@ def _build_zone_climates(zones: list[int]) -> dict[str, Any]:
 # no longer appear as read-only sensors.
 _WRITABLE_ZONE_SENSOR_KEYS: Final[set[str]] = {
     "control_mode",
+    "dhw_comfort_setpoint",
+    "dhw_reduced_setpoint",
+    "dhw_holiday_setpoint",
     "dhw_calorifier_hysteresis",
     "room_setpoint_manual",
     "room_temp_measured",

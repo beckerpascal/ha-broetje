@@ -1754,6 +1754,15 @@
       }
     },
     "number": {
+      "zone_dhw_comfort_setpoint": {
+        "name": "Zone {zone} DHW comfort setpoint"
+      },
+      "zone_dhw_reduced_setpoint": {
+        "name": "Zone {zone} DHW reduced setpoint"
+      },
+      "zone_dhw_holiday_setpoint": {
+        "name": "Zone {zone} DHW holiday setpoint"
+      },
       "zone_dhw_calorifier_hysteresis": {
         "name": "Zone {zone} DHW calorifier hysteresis"
       },

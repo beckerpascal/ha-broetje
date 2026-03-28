@@ -1754,6 +1754,15 @@
       }
     },
     "number": {
+      "zone_dhw_comfort_setpoint": {
+        "name": "Heizkreis {zone} TWW Komfortsollwert"
+      },
+      "zone_dhw_reduced_setpoint": {
+        "name": "Heizkreis {zone} TWW Reduzierter Sollwert"
+      },
+      "zone_dhw_holiday_setpoint": {
+        "name": "Heizkreis {zone} TWW Feriensollwert"
+      },
       "zone_dhw_calorifier_hysteresis": {
         "name": "Heizkreis {zone} Warmwasserspeicher-Hysterese"
       },
