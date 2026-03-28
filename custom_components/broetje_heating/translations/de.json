@@ -1763,6 +1763,9 @@
       "zone_dhw_holiday_setpoint": {
         "name": "Heizkreis {zone} TWW Feriensollwert"
       },
+      "zone_dhw_antilegionella_setpoint": {
+        "name": "Heizkreis {zone} TWW Anti-Legionellen-Sollwert"
+      },
       "zone_dhw_calorifier_hysteresis": {
         "name": "Heizkreis {zone} Warmwasserspeicher-Hysterese"
       },

@@ -1491,6 +1491,9 @@
       "zone_dhw_holiday_setpoint": {
         "name": "Zone {zone} DHW holiday setpoint"
       },
+      "zone_dhw_antilegionella_setpoint": {
+        "name": "Zone {zone} DHW anti-legionella setpoint"
+      },
       "zone_dhw_calorifier_hysteresis": {
         "name": "Zone {zone} DHW calorifier hysteresis"
       },
