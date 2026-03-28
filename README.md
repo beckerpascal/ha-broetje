@@ -47,10 +47,14 @@ The ISR Plus module is the older Modbus interface found on Brötje gas boilers a
 Register specification: [de-de_ma_modbm.pdf](https://polo.broetje.de/pdf/7715040=6=pdf_(bdr_a4_manual)=de-de_ma_modbm.pdf)
 
 ## Supported Models
+All Brötje heatpumps and gasboilers with one of the listed Modbus interfaces.
 
 <img src="custom_components/broetje_heating/images/Broetje-BLW-Eco-10.1.png" alt="Brötje BLW Eco" width="300">
 
-**Brötje BLW Eco 10.1** (tested with ISR and IWR)
+### Tested Models
+- **Brötje BLW Eco 10.1** (tested with ISR and IWR)
+- **Brötje BLW Eco 12.1**
+- **Brötje BLW Mono**
 
 *Other Brötje heating systems with Modbus interface should also work.*
 
@@ -63,42 +67,32 @@ Register specification: [de-de_ma_modbm.pdf](https://polo.broetje.de/pdf/7715040
 - **ISR**: 117 entities (100 sensors + 17 binary sensors) across 6 categories
 - **Zone detection** (IWR): Automatically detects active zones by reading zone type and function registers from the device; active zones are pre-selected, inactive ones shown but unchecked. Manual selection also available.
 - **Climate subsystem** (IWR): Zone thermostat entities are exposed via Home Assistant `climate` entities (Thermostat card compatible) with current temperature, target setpoint, and HVAC mode/action mapping.
-- **Writable zone controls** (IWR): Write-enabled entities for selected zone registers, including control mode, room setpoint (manual), room temperature measured (external sensor injection), and DHW calorifier hysteresis.
+- **Writable zone controls** (IWR): Write-enabled entities for selected zone registers, including control mode, room setpoint (manual), room temperature measured (external sensor injection), DHW calorifier hysteresis, and DHW comfort/reduced/holiday setpoints.
 - **Sub-devices**: Entities are grouped under functional sub-devices (for example boiler/service/solar/buffer/hybrid). Only detected sub-devices are kept; stale/orphaned sub-devices are removed automatically on reload.
 - **Configurable zones** (IWR): 1–12 zones selectable during setup or reconfigurable via integration options
 - **Configurable scan interval**: Adjustable polling interval via integration options (default: 120 seconds)
 - **German and English translations**
 - **Sentinel value filtering**: Invalid Modbus readings (0xFFFF, 0xFFFFFFFF) are shown as "Unavailable" instead of bogus numbers
 
-### ISR Categories
+### ISR Coverage
 
-| Category | Sensors | Binary Sensors | Description |
-|----------|---------|----------------|-------------|
-| **Heating Circuit 1** (Heizkreis 1) | 21 | 5 | Temperatures, setpoints, pump, mixer |
-| **DHW Settings** (Trinkwasser) | 12 | - | Operating mode, legionella, circulation |
-| **DHW Storage Tank** (Trinkwasserspeicher) | 11 | 3 | Tank temperatures, pumps |
-| **Buffer Storage** (Pufferspeicher) | 5 | 2 | Buffer temperatures, valves |
-| **Boiler** (Kessel) | 31 | 3 | Burner, fan, energy counters |
-| **General Functions** (Allgemein) | 3 | 4 | Outdoor temp, alarm, manual mode |
+- 🌡️ **Heating Circuit 1** — temperatures, setpoints, pump, mixer
+- 🚿 **DHW** — operating mode, legionella protection, circulation
+- 🪣 **DHW Storage Tank** — tank temperatures, pumps
+- 🔋 **Buffer Storage** — buffer temperatures, valves
+- 🔥 **Boiler** — burner, fan, energy counters
+- ⚙️ **General Functions** — outdoor temperature, alarm relay, manual mode
 
-> **Note:** Currently only **Heating Circuit 1 (HK1)** is supported for ISR. Support for HC2/HC3 may be added in future versions.
+> **Note:** Currently only **Heating Circuit 1 (HK1)** is supported. Support for HC2/HC3 may be added in a future version.
 
-### IWR Categories
+### IWR Coverage
 
-| Category | Registers | Description |
-|----------|-----------|-------------|
-| **Appliance - Measurements** | 26 | Temperatures, pressures, status, power |
-| **Appliance - Temperatures** | 6 | Flow, return, internal setpoints |
-| **Appliance - Control** | 4 | Summer/winter threshold, frost protection, force modes |
-| **Appliance - Efficiency** | 2 | COP monitoring |
-| **Appliance** | 9 | Enable/disable CH, DHW, cooling |
-| **Main Controller Monitoring** | 30 | Status bits, output status, heat demand, energy counters |
-| **Zones - Parameters** (per zone) | 44 | Setpoints, heating curves, control strategy, time programs |
-| **Zones - Measurements** (per zone) | 17 | Outside/room/flow temperatures, heat demand, valve, pump |
-| **Device Information** | 1 | Gateway device type |
-| **System Discovery** | 59 | Connected boards, device types, software versions, article numbers |
-| **Service** | 14 | Service notifications, hours/starts since service, per-board errors |
-| **Cascade** | 2 | Cascade status |
+- 🌡️ **Appliance** — temperatures, pressures, flow/return, COP, power, CH/DHW/cooling enable
+- 🎛️ **Main Controller** — status bits, heat demand, output states, energy counters
+- 🏠 **Zones** (per zone, up to 12) — setpoints, heating curves, control strategy, time programs, room/flow temperatures, valve and pump states
+- 🔧 **System Discovery** — connected boards, device types, software/firmware versions, article numbers
+- ⚠️ **Service & Diagnostics** — error codes and severity per board, service notifications
+- 🔗 **Cascade** — cascade status
 
 > Entity counts scale with the number of configured zones: ~213 entities for 1 zone, up to ~884 for 12 zones.
 

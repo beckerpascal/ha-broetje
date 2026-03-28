@@ -47,12 +47,16 @@ Das ISR Plus Modul ist die ältere Modbus-Schnittstelle, die in Brötje Gasheizu
 Registerspezifikation: [de-de_ma_modbm.pdf](https://polo.broetje.de/pdf/7715040=6=pdf_(bdr_a4_manual)=de-de_ma_modbm.pdf)
 
 ## Unterstützte Modelle
+Alle Brötje Wärmepumpen oder Gasthermen mit einem der beiden oben genannten Modbus Interfaces
 
 <img src="custom_components/broetje_heating/images/Broetje-BLW-Eco-10.1.png" alt="Brötje BLW Eco" width="300">
 
-**Brötje BLW Eco 10.1** (getestet mit ISR und IWR)
+### Getestete Modelle
+- **Brötje BLW Eco 10.1** (getestet mit GTW-08 und ISR MODBM)
+- **Brötje BLW Eco 12.1** (GTW-08)
+- **Brötje BLW Mono** (GTW-08)
 
-*Andere Brötje Heizsysteme mit Modbus-Schnittstelle sollten ebenfalls funktionieren.*
+*Andere Brötje Heizsysteme mit den genannten Modbus-Schnittstelle sollten ebenfalls funktionieren.*
 
 ## Funktionen
 
@@ -63,42 +67,32 @@ Registerspezifikation: [de-de_ma_modbm.pdf](https://polo.broetje.de/pdf/7715040=
 - **ISR**: 117 Entitäten (100 Sensoren + 17 Binärsensoren) in 6 Kategorien
 - **Zonenerkennung** (IWR): Erkennt aktive Zonen automatisch durch Auslesen der Zonentyp- und Zonenfunktionsregister vom Gerät; aktive Zonen werden vorausgewählt, inaktive angezeigt aber nicht ausgewählt. Manuelle Auswahl ebenfalls möglich.
 - **Climate-Subsystem** (IWR): Pro Zone werden Home-Assistant-`climate` Entitäten bereitgestellt (Thermostat-Karte kompatibel) mit Isttemperatur, Solltemperatur und HVAC-Modus/Aktion.
-- **Schreibbare Zonensteuerung** (IWR): Schreibfähige Entitäten für ausgewählte Zonenregister, u. a. Steuerungsmodus, Raumsollwert (manuell), gemessene Raumtemperatur (externer Fühlerwert) und TWW-Speicher-Hysterese.
+- **Schreibbare Zonensteuerung** (IWR): Schreibfähige Entitäten für ausgewählte Zonenregister, u. a. Steuerungsmodus, Raumsollwert (manuell), gemessene Raumtemperatur (externer Fühlerwert), TWW-Speicher-Hysterese sowie TWW-Komfort-, Reduziert- und Feriensollwert.
 - **Sub-Devices**: Entitäten werden unter funktionalen Untergeräten gruppiert (z. B. Kessel/Service/Solar/Pufferspeicher/Hybrid). Nur erkannte Untergeräte werden geführt; verwaiste Untergeräte werden beim Reload automatisch entfernt.
 - **Konfigurierbare Zonen** (IWR): 1–12 Zonen bei der Einrichtung auswählbar oder über Integrationsoptionen neu konfigurierbar
 - **Konfigurierbares Abfrageintervall**: Über Integrationsoptionen einstellbar (Standard: 120 Sekunden)
 - **Deutsche und englische Übersetzungen**
 - **Sentinel-Wert-Filterung**: Ungültige Modbus-Werte (0xFFFF, 0xFFFFFFFF) werden als „Nicht verfügbar" angezeigt statt als unsinnige Zahlen
 
-### ISR Kategorien
+### ISR Abdeckung
 
-| Kategorie | Sensoren | Binärsensoren | Beschreibung |
-|-----------|----------|---------------|--------------|
-| **Heizkreis 1** | 21 | 5 | Temperaturen, Sollwerte, Pumpe, Mischer |
-| **Trinkwasser (TWW)** | 12 | - | Betriebsart, Legionellen, Zirkulation |
-| **Trinkwasserspeicher** | 11 | 3 | Speichertemperaturen, Pumpen |
-| **Pufferspeicher** | 5 | 2 | Puffertemperaturen, Ventile |
-| **Kessel** | 31 | 3 | Brenner, Gebläse, Energiezähler |
-| **Allgemeine Funktionen** | 3 | 4 | Außentemperatur, Alarm, Handbetrieb |
+- 🌡️ **Heizkreis 1** — Temperaturen, Sollwerte, Pumpe, Mischer
+- 🚿 **Trinkwasser (TWW)** — Betriebsart, Legionellenschutz, Zirkulation
+- 🪣 **Trinkwasserspeicher** — Speichertemperaturen, Pumpen
+- 🔋 **Pufferspeicher** — Puffertemperaturen, Ventile
+- 🔥 **Kessel** — Brenner, Gebläse, Energiezähler
+- ⚙️ **Allgemeine Funktionen** — Außentemperatur, Alarmrelais, Handbetrieb
 
-> **Hinweis:** Aktuell wird für ISR nur **Heizkreis 1 (HK1)** unterstützt. Unterstützung für HK2/HK3 kann in zukünftigen Versionen hinzugefügt werden.
+> **Hinweis:** Aktuell wird für ISR nur **Heizkreis 1 (HK1)** unterstützt. Unterstützung für HK2/HK3 kann in einer zukünftigen Version hinzugefügt werden.
 
-### IWR Kategorien
+### IWR Abdeckung
 
-| Kategorie | Register | Beschreibung |
-|-----------|----------|--------------|
-| **Gerät - Messwerte** | 26 | Temperaturen, Drücke, Status, Leistung |
-| **Gerät - Temperaturen** | 6 | Vorlauf, Rücklauf, interne Sollwerte |
-| **Gerät - Steuerung** | 4 | Sommer/Winter-Schwelle, Frostschutz, Zwangsmodi |
-| **Gerät - Effizienz** | 2 | COP-Überwachung |
-| **Gerät** | 9 | HZG/TWW/Kühlung ein/aus |
-| **Regler-Überwachung** | 30 | Statusbits, Ausgangsstatus, Wärmeanforderung, Energiezähler |
-| **Zonen - Parameter** (pro Zone) | 44 | Sollwerte, Heizkurven, Regelstrategie, Zeitprogramme |
-| **Zonen - Messwerte** (pro Zone) | 17 | Außen-/Raum-/Vorlauftemperaturen, Wärmebedarf, Ventil, Pumpe |
-| **Geräteinformation** | 1 | Gateway-Gerätetyp |
-| **Systemerkennung** | 59 | Angeschlossene Platinen, Gerätetypen, Softwareversionen, Artikelnummern |
-| **Wartung** | 14 | Wartungsmeldungen, Stunden/Starts seit Wartung, Fehler pro Platine |
-| **Kaskade** | 2 | Kaskadenstatus |
+- 🌡️ **Gerät** — Temperaturen, Drücke, Vorlauf/Rücklauf, COP, Leistung, HZG/TWW/Kühlung ein/aus
+- 🎛️ **Regler** — Statusbits, Wärmeanforderung, Ausgangsstatus, Energiezähler
+- 🏠 **Zonen** (pro Zone, bis zu 12) — Sollwerte, Heizkurven, Regelstrategie, Zeitprogramme, Raum-/Vorlauftemperaturen, Ventil- und Pumpenstatus
+- 🔧 **Systemerkennung** — Angeschlossene Platinen, Gerätetypen, Software-/Firmwareversionen, Artikelnummern
+- ⚠️ **Wartung & Diagnose** — Fehlercodes und Schweregrad pro Platine, Wartungsmeldungen
+- 🔗 **Kaskade** — Kaskadenstatus
 
 > Die Anzahl der Entitäten skaliert mit der Anzahl konfigurierter Zonen: ~213 Entitäten für 1 Zone, bis zu ~884 für 12 Zonen.
 
