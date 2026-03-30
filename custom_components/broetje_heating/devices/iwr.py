@@ -40,6 +40,7 @@ IWR_STATIC_ENTITY_CLASSIFICATION: Final[dict[str, tuple[str | None, bool]]] = {
     "seasonal_mode": (None, True),
     "ch_enabled": (None, True),
     "dhw_enabled": (None, True),
+    "dhw_eco_comfort_mode": (None, True),
     "cooling_enabled": (None, True),
     "service_notification": (None, True),
     # ===== Key binary status — Primary =====
@@ -491,6 +492,12 @@ IWR_COOLING_ENABLED: Final = {
     2: "free_cooling",
 }
 
+# DHW ECO / COMFORT mode (register 479, DP051)
+IWR_DHW_ECO_COMFORT: Final = {
+    0: "eco_hp_only",
+    1: "comfort_hp_boiler",
+}
+
 # Collected enum maps for IWR device
 IWR_ENUM_MAPS: Final = {
     "iwr_main_status": IWR_MAIN_STATUS,
@@ -510,6 +517,7 @@ IWR_ENUM_MAPS: Final = {
     "iwr_zone_heating_mode": IWR_ZONE_HEATING_MODE,
     "iwr_heating_control_strategy": IWR_HEATING_CONTROL_STRATEGY,
     "iwr_time_program_selected": IWR_TIME_PROGRAM_SELECTED,
+    "iwr_dhw_eco_comfort": IWR_DHW_ECO_COMFORT,
 }
 
 # ===== Zone Address Tables =====
@@ -1164,6 +1172,17 @@ _IWR_STATIC_REGISTER_MAP: Final = {
         "count": 1,
         "data_type": "bool",
         "bit": 6,
+    },
+    # --- DHW ECO/COMFORT mode (DP051, Excel parameterlist) ---
+    "dhw_eco_comfort_mode": {
+        "address": 479,
+        "type": REG_HOLDING,
+        "count": 1,
+        "data_type": "uint16",
+        "scale": 1,
+        "writable": True,
+        "min": 0,
+        "max": 1,
     },
     # --- Appliance Enable/Disable (from German spec 7740782-01) ---
     "ch_enabled": {
@@ -3391,6 +3410,18 @@ def _build_zone_numbers(zones: list[int]) -> dict[str, Any]:
     return numbers
 
 
+# Static (non-zone) select entities for the IWR device.
+_IWR_STATIC_SELECTS: Final[dict[str, Any]] = {
+    # DP051 - DHW ECO or COMFORT setting (register 479, R/W)
+    "dhw_eco_comfort_mode": {
+        "register": "dhw_eco_comfort_mode",
+        "translation_key": "dhw_eco_comfort_mode",
+        "enum_map": "iwr_dhw_eco_comfort",
+        "icon": "mdi:water-boiler",
+    },
+}
+
+
 def _build_zone_selects(zones: list[int]) -> dict[str, Any]:
     """Generate select entity definitions for writable enum zone registers."""
     selects: dict[str, Any] = {}
@@ -3491,7 +3522,7 @@ def get_iwr_device_config(zones: list[int] | None = None) -> dict[str, Any]:
         **_build_zone_binary_sensors(zones),
     }
     numbers = _build_zone_numbers(zones)
-    selects = _build_zone_selects(zones)
+    selects = {**_IWR_STATIC_SELECTS, **_build_zone_selects(zones)}
     climates = _build_zone_climates(zones)
 
     # Remove sensor entries for registers that now have number/select entities

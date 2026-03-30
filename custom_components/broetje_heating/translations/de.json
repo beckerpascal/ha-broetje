@@ -1777,6 +1777,13 @@
       }
     },
     "select": {
+      "dhw_eco_comfort_mode": {
+        "name": "Warmwasser-Modus",
+        "state": {
+          "eco_hp_only": "Öko (nur Wärmepumpe)",
+          "comfort_hp_boiler": "Komfort (WP + Kessel)"
+        }
+      },
       "zone_control_mode": {
         "name": "Heizkreis {zone} Steuerungsmodus",
         "state": {
