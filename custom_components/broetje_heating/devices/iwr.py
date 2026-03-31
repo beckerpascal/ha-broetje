@@ -10,6 +10,7 @@ from typing import Any, Final
 from ..const import (
     REG_HOLDING,
     SUBDEV_BOILER,
+    SUBDEV_HYBRID,
     SUBDEV_SERVICE,
 )
 
@@ -3413,11 +3414,13 @@ def _build_zone_numbers(zones: list[int]) -> dict[str, Any]:
 # Static (non-zone) select entities for the IWR device.
 _IWR_STATIC_SELECTS: Final[dict[str, Any]] = {
     # DP051 - DHW ECO or COMFORT setting (register 479, R/W)
+    # Only relevant for hybrid systems that have a backup boiler.
     "dhw_eco_comfort_mode": {
         "register": "dhw_eco_comfort_mode",
         "translation_key": "dhw_eco_comfort_mode",
         "enum_map": "iwr_dhw_eco_comfort",
         "icon": "mdi:water-boiler",
+        "sub_device": SUBDEV_HYBRID,
     },
 }
 
