@@ -52,11 +52,11 @@ All Brötje heatpumps and gasboilers with one of the listed Modbus interfaces.
 <img src="custom_components/broetje_heating/images/Broetje-BLW-Eco-10.1.png" alt="Brötje BLW Eco" width="300">
 
 ### Tested Models
-- **Brötje BLW Eco 10.1** (tested with ISR and IWR)
+- **Brötje BLW Eco 10.1** (tested with ISR and IWR/GTW-08)
 - **Brötje BLW Eco 12.1**
-- **Brötje BLW Mono**
+- **Brötje BLW Mono 8** (Hybrid Setup, Remeha GTW-08)
 
-*Other Brötje heating systems with Modbus interface should also work.*
+*Other Brötje heating systems with Modbus interface should also work. I appreciate any feedback for other models*
 
 ## Features
 
