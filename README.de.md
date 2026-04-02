@@ -54,9 +54,9 @@ Alle Brötje Wärmepumpen oder Gasthermen mit einem der beiden oben genannten Mo
 ### Getestete Modelle
 - **Brötje BLW Eco 10.1** (getestet mit GTW-08 und ISR MODBM)
 - **Brötje BLW Eco 12.1** (GTW-08)
-- **Brötje BLW Mono** (GTW-08)
+- **Brötje BLW Mono 8** (Hybrid Setup, Remeha GTW-08)
 
-*Andere Brötje Heizsysteme mit den genannten Modbus-Schnittstelle sollten ebenfalls funktionieren.*
+*Andere Brötje Heizsysteme mit den genannten Modbus-Schnittstellen sollten ebenfalls funktionieren. Über Feedback für andere Modelle freuen wir uns :-)*
 
 ## Funktionen
 
