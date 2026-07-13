@@ -1200,19 +1200,27 @@ _IWR_STATIC_REGISTER_MAP: Final = {
         "data_type": "uint16",
         "scale": 1,
     },
+    # AP028 - Cooling type: 0=Off, 1=Active cooling, 2=Free cooling (R/W)
     "cooling_enabled": {
         "address": 502,
         "type": REG_HOLDING,
         "count": 1,
         "data_type": "uint16",
         "scale": 1,
+        "writable": True,
+        "min": 0,
+        "max": 2,
     },
+    # AP015 - Force the heat pump into cooling mode: 0=No, 1=Yes (R/W)
     "cooling_forced": {
         "address": 503,
         "type": REG_HOLDING,
         "count": 1,
         "data_type": "uint16",
         "scale": 1,
+        "writable": True,
+        "min": 0,
+        "max": 1,
     },
     # --- Service registers (Tab.50) ---
     "service_required": {
@@ -1898,26 +1906,8 @@ _IWR_STATIC_SENSORS: Final = {
         "enum_map": "iwr_on_off",
         "sub_device": SUBDEV_BOILER,
     },
-    "cooling_enabled": {
-        "register": "cooling_enabled",
-        "translation_key": "cooling_enabled",
-        "device_class": "enum",
-        "unit": None,
-        "state_class": None,
-        "icon": "mdi:snowflake",
-        "enum_map": "iwr_cooling_enabled",
-        "sub_device": SUBDEV_BOILER,
-    },
-    "cooling_forced": {
-        "register": "cooling_forced",
-        "translation_key": "cooling_forced",
-        "device_class": "enum",
-        "unit": None,
-        "state_class": None,
-        "icon": "mdi:snowflake-alert",
-        "enum_map": "iwr_on_off",
-        "sub_device": SUBDEV_BOILER,
-    },
+    # NOTE: cooling_enabled (502) and cooling_forced (503) are writable and are
+    # exposed as select entities instead — see _IWR_STATIC_SELECTS.
     # --- Service sensors ---
     "service_notification": {
         "register": "service_notification",
@@ -3421,6 +3411,23 @@ _IWR_STATIC_SELECTS: Final[dict[str, Any]] = {
         "enum_map": "iwr_dhw_eco_comfort",
         "icon": "mdi:water-boiler",
         "sub_device": SUBDEV_HYBRID,
+    },
+    # AP028 - Cooling type (register 502, R/W).
+    # This is the "Aktives Kuehlen" setting from the controller menu.
+    "cooling_enabled": {
+        "register": "cooling_enabled",
+        "translation_key": "cooling_enabled",
+        "enum_map": "iwr_cooling_enabled",
+        "icon": "mdi:snowflake",
+        "sub_device": SUBDEV_BOILER,
+    },
+    # AP015 - Force the heat pump into cooling mode (register 503, R/W).
+    "cooling_forced": {
+        "register": "cooling_forced",
+        "translation_key": "cooling_forced",
+        "enum_map": "iwr_on_off",
+        "icon": "mdi:snowflake-alert",
+        "sub_device": SUBDEV_BOILER,
     },
 }
 

@@ -1269,21 +1269,6 @@
           "on": "Ein"
         }
       },
-      "cooling_enabled": {
-        "name": "Kühlung erlaubt",
-        "state": {
-          "off": "Aus",
-          "active_cooling": "Aktive Kühlung",
-          "free_cooling": "Freie Kühlung"
-        }
-      },
-      "cooling_forced": {
-        "name": "Kühlung erzwingen",
-        "state": {
-          "off": "Aus",
-          "on": "Ein"
-        }
-      },
       "service_notification": {
         "name": "Wartungsmeldung",
         "state": {
@@ -1777,6 +1762,21 @@
       }
     },
     "select": {
+      "cooling_enabled": {
+        "name": "Kühlmodus",
+        "state": {
+          "off": "Aus",
+          "active_cooling": "Aktive Kühlung",
+          "free_cooling": "Freie Kühlung"
+        }
+      },
+      "cooling_forced": {
+        "name": "Kühlung erzwingen",
+        "state": {
+          "off": "Aus",
+          "on": "Ein"
+        }
+      },
       "dhw_eco_comfort_mode": {
         "name": "Warmwasser-Modus",
         "state": {
