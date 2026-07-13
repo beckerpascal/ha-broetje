@@ -1269,21 +1269,6 @@
           "on": "On"
         }
       },
-      "cooling_enabled": {
-        "name": "Cooling enabled",
-        "state": {
-          "off": "Off",
-          "active_cooling": "Active cooling",
-          "free_cooling": "Free cooling"
-        }
-      },
-      "cooling_forced": {
-        "name": "Cooling forced",
-        "state": {
-          "off": "Off",
-          "on": "On"
-        }
-      },
       "service_notification": {
         "name": "Service notification",
         "state": {
@@ -1777,6 +1762,21 @@
       }
     },
     "select": {
+      "cooling_enabled": {
+        "name": "Cooling mode",
+        "state": {
+          "off": "Off",
+          "active_cooling": "Active cooling",
+          "free_cooling": "Free cooling"
+        }
+      },
+      "cooling_forced": {
+        "name": "Cooling forced",
+        "state": {
+          "off": "Off",
+          "on": "On"
+        }
+      },
       "dhw_eco_comfort_mode": {
         "name": "DHW mode",
         "state": {
