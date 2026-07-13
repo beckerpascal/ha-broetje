@@ -62,6 +62,7 @@ class BroetjeNumber(BroetjeEntity, NumberEntity):
             coordinator,
             entity_key,
             zone_number=entity_config.get("zone_number"),
+            sub_device=entity_config.get("sub_device"),
         )
 
         self._register_key = entity_config["register"]
