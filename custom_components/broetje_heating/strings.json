@@ -1505,21 +1505,6 @@
       }
     },
     "select": {
-      "cooling_enabled": {
-        "name": "Cooling mode",
-        "state": {
-          "off": "Off",
-          "active_cooling": "Active cooling",
-          "free_cooling": "Free cooling"
-        }
-      },
-      "cooling_forced": {
-        "name": "Cooling forced",
-        "state": {
-          "off": "Off",
-          "on": "On"
-        }
-      },
       "zone_control_mode": {
         "name": "Zone {zone} control mode",
         "state": {
